@@ -1,98 +1,145 @@
-<!DOCTYPE html><html lang="ja" x-data="tarotApp()">
+<!DOCTYPE html>
+<html lang="ja" x-data="tarotApp()">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>無料タロット診断</title>  <!-- Google tag (gtag.js) -->  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2J4SN6VFP7"></script>  <script>
+  <title>無料タロット診断</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2J4SN6VFP7"></script>
+  <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-2J4SN6VFP7');
-  </script>  <!-- Tailwind CSS -->  <script src="https://cdn.tailwindcss.com"></script>  <!-- Alpine.js -->  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>  <style>
-    /* キーフレームは省略 */
-  </style></head>
-<body class="antialiased bg-gray-900 text-white">  <!-- 1. 初期：シャッフルボタン -->  <section x-show.transition="status==='initial'" class="min-h-screen flex items-center justify-center px-4">
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js -->
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <style>[x-cloak] { display: none !important; }</style>
+  <style>
+    @keyframes shuffleAnimation { /* 略 */ }
+    @keyframes dealAnimation   { /* 略 */ }
+    @keyframes spinMagic       { /* 略 */ }
+    body { opacity: 0; transition: opacity 0.7s ease; }
+  </style>
+</head>
+<body onload="document.body.style.opacity='1'" class="antialiased bg-gray-900 text-white">
+
+  <!-- 1. シャッフルボタン -->
+  <section x-show.transition="status==='initial'" class="min-h-screen flex items-center justify-center px-4">
     <button @click="shuffle()"
             class="px-8 py-4 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition">
       タロットをシャッフルする
     </button>
-  </section>  <!-- 2. シャッフル中 -->  <section x-show.transition="status==='shuffling'" class="min-h-screen flex flex-col items-center justify-center px-4">
+  </section>
+
+  <!-- 2. シャッフル中 -->
+  <section x-show.transition="status==='shuffling'" class="min-h-screen flex flex-col items-center justify-center px-4">
     <div class="w-24 h-24 bg-white rounded-full mb-4 animate-spin"></div>
     <p class="text-lg">シャッフル中…</p>
-  </section>  <!-- 3. カード並べ -->  <section x-show.transition="status==='dealing'" class="min-h-screen px-4 pt-12 pb-8">
+  </section>
+
+  <!-- 3. カード並べ -->
+  <section x-show.transition="status==='dealing'" class="min-h-screen px-4 pt-12 pb-8">
     <h2 class="text-center text-2xl font-bold mb-6">カードを並べています…</h2>
     <div class="max-w-4xl mx-auto grid grid-cols-3 gap-4">
       <template x-for="(card,i) in cards" :key="card.id">
-        <div class="opacity-0" :style="{'animation': `dealAnimation 0.5s ease-out forwards ${i*200}ms`}">
+        <div class="opacity-0" :style="{ 'animation': `dealAnimation 0.5s ease-out forwards ${i*200}ms` }">
           <img :src="card.img" :alt="card.name" class="w-full rounded-lg shadow-lg" />
         </div>
       </template>
     </div>
-  </section>  <!-- 4. カード選択 -->  <section x-show.transition="status==='selecting'" class="min-h-screen px-4 pt-12">
+  </section>
+
+  <!-- 4. カード選択 -->
+  <section x-show.transition="status==='selecting'" class="min-h-screen px-4 pt-12">
     <h2 class="text-center text-2xl font-bold mb-4">カードを選んでください</h2>
     <div class="max-w-4xl mx-auto grid grid-cols-3 gap-4">
       <template x-for="card in cards" :key="card.id">
-        <div @click="select(card.id)" :class="selected.includes(card.id)? 'opacity-50 pointer-events-none':'cursor-pointer'">
-          <img :src="card.img" :alt="card.name" class="w-full rounded-lg shadow-lg hover:scale-105 transition" />
+        <div @click="select(card.id)"
+             :class="selected.includes(card.id) ? 'opacity-50 pointer-events-none' : 'cursor-pointer'">
+          <img :src="card.img" :alt="card.name"
+               class="w-full rounded-lg shadow-lg hover:scale-105 transition" />
         </div>
       </template>
     </div>
-  </section>  <!-- 5. 鑑定中 -->  <section x-show.transition="status==='analyzing'" class="min-h-screen flex flex-col items-center justify-center px-4">
+  </section>
+
+  <!-- 5. 鑑定中 -->
+  <section x-show.transition="status==='analyzing'" class="min-h-screen flex flex-col items-center justify-center px-4">
     <div class="w-32 h-32 border-4 border-white rounded-full mb-4 animate-spin"></div>
     <p class="text-2xl font-bold">鑑定中…</p>
-  </section>  <!-- 6. 結果表示 -->  <section x-show.transition="status==='result'" class="py-12 bg-white text-gray-800 px-4">
+  </section>
+
+  <!-- 6. 結果表示 -->
+  <section x-show.transition="status==='result'" class="py-12 bg-white text-gray-800 px-4">
     <div class="max-w-lg mx-auto text-center mb-6">
       <h2 class="text-2xl font-bold mb-2">診断結果</h2>
       <p class="text-sm text-gray-600">あなたと彼（彼女）の“今”の本音を簡易リーディング</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       <template x-for="id in selected" :key="id">
-        <div class="p-4 bg-gray-50 rounded-lg shadow"
-             x-show.transition="true">
-          <h3 class="text-lg font-semibold mb-1" x-text="cards.find(c=>c.id===id).name"></h3>
-          <p class="text-sm"><strong>あなたの今：</strong><span x-text="cards.find(c=>c.id===id).your"></span><br>
-            <strong>相手の今：</strong><span x-text="cards.find(c=>c.id===id).other"></span></p>
+        <div class="p-4 bg-gray-50 rounded-lg shadow" x-show.transition>
+          <h3 class="text-lg font-semibold mb-1" x-text="cards.find(c => c.id === id).name"></h3>
+          <p class="text-sm">
+            <strong>あなたの今：</strong><span x-text="cards.find(c => c.id === id).your"></span><br>
+            <strong>相手の今：</strong><span x-text="cards.find(c => c.id === id).other"></span>
+          </p>
         </div>
       </template>
     </div>
     <div class="flex flex-col items-center">
-      <a href="https://line.me/R/ti/p/あなたのLINEID" class="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition">
+      <a href="https://line.me/R/ti/p/あなたのLINEID"
+         class="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
+         onclick="gtag('event','line_add',{ event_category:'LP', event_label:'LINE深掘り希望'});">
         LINEで深掘り解説を受け取る
       </a>
       <p class="mt-2 text-xs text-gray-500 text-center">友だち追加後、「深堀り希望」とコメントしてください</p>
     </div>
-  </section>  <!-- フッター -->  <footer class="bg-gray-800 text-gray-400 py-8 px-4">
+  </section>
+
+  <!-- フッター -->
+  <footer class="bg-gray-800 text-gray-400 py-8 px-4">
     <div class="max-w-4xl mx-auto text-center space-y-4">
       <div class="text-white font-bold text-lg">タロット診断サービス</div>
       <a href="index.html#hero" class="text-sm hover:text-white">トップへ戻る</a>
       <p class="text-xs leading-relaxed">※本サービスは占いの結果を保証するものではありません。参考情報としてお楽しみください。</p>
       <p class="text-xs">© 2025 タロット診断サービス All Rights Reserved.</p>
     </div>
-  </footer><script>
-  function tarotApp() {
-    return {
-      status: 'initial',
-      cards: [
-        {id:1,name:'愚者',img:'https://via.placeholder.com/150x200?text=愚者',your:'新たなスタートを切りたい気持ちです。',other:'好奇心と期待を抱いています。'},
-        {id:2,name:'魔術師',img:'https://via.placeholder.com/150x200?text=魔術師',your:'自分の可能性を信じています。',other:'あなたにポジティブな期待感。'},
-        {id:3,name:'女教皇',img:'https://via.placeholder.com/150x200?text=女教皇',your:'直感が冴えています。',other:'あなたを静かに見守っています。'}
-      ],
-      selected: [],
-      shuffle() {
-        this.status='shuffling';
-        setTimeout(()=>this.status='dealing',1000);
-        setTimeout(()=>this.status='selecting',2000);
-      },
-      select(id) {
-        if(this.selected.length<3 && !this.selected.includes(id)){
-          this.selected.push(id);
-          if(this.selected.length===3) this.analyze();
+  </footer>
+
+  <script>
+    function tarotApp() {
+      return {
+        status: 'initial',
+        cards: [
+          { id: 1, name: '愚者',   img: 'https://via.placeholder.com/150x200?text=愚者',   your: '新たなスタートを切りたい気持ちです。', other: '好奇心と期待を抱いています。' },
+          { id: 2, name: '魔術師', img: 'https://via.placeholder.com/150x200?text=魔術師', your: '自分の可能性を信じています。', other: 'あなたにポジティブな期待感。' },
+          { id: 3, name: '女教皇', img: 'https://via.placeholder.com/150x200?text=女教皇', your: '直感が冴えています。', other: 'あなたを静かに見守っています。' }
+        ],
+        selected: [],
+        shuffle() {
+          this.status = 'shuffling';
+          setTimeout(() => this.status = 'dealing', 1000);
+          setTimeout(() => this.status = 'selecting', 2000);
+        },
+        select(id) {
+          if (this.selected.length < 3 && !this.selected.includes(id)) {
+            this.selected.push(id);
+            if (this.selected.length === 3) this.analyze();
+          }
+        },
+        analyze() {
+          this.status = 'analyzing';
+          setTimeout(() => this.status = 'result', 3000);
         }
-      },
-      analyze() {
-        this.status='analyzing';
-        setTimeout(()=>this.status='result',3000);
       }
     }
-  }
-</script></body>
+  </script>
+
+</body>
 </html>
