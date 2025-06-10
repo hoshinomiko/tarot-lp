@@ -14,10 +14,9 @@
     gtag('config', 'G-2J4SN6VFP7');
   </script>
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Alpine.js for transitions -->
+  <!-- Alpine.js for any future interactivity -->
   <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
   <style>
@@ -25,17 +24,18 @@
     body { opacity: 0; transition: opacity 0.7s ease; }
   </style>
 </head>
-<body onload="document.body.style.opacity = '1'" class="antialiased text-gray-900">
+<body onload="document.body.style.opacity='1'" class="antialiased text-gray-900">
 
   <!-- ヒーローセクション -->
-  <section id="hero" class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900 text-white px-4 text-center">
+  <section id="hero" class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900 text-white px-4 text-center"
+           x-data x-init>
     <h1 class="text-4xl sm:text-5xl font-bold mb-4">
       ３枚のタロットカードが、あなたと彼（彼女）の“今”の本音を瞬時に解き明かす
     </h1>
     <p class="mb-6 text-lg">完全自動／今すぐ無料診断／相手の気持ちも丸わかり</p>
     <a href="free.html"
        class="px-8 py-4 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition"
-       onclick="gtag('event','free_start',{ 'event_category':'LP','event_label':'無料診断開始'});">
+       onclick="gtag('event','free_start',{ event_category:'LP', event_label:'無料診断開始' });">
       今すぐ〈無料〉で“今”を診断する
     </a>
   </section>
@@ -64,7 +64,7 @@
     </p>
     <a href="free.html"
        class="mt-4 inline-block px-6 py-3 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition"
-       onclick="gtag('event','free_start',{ 'event_category':'LP','event_label':'無料診断開始'});">
+       onclick="gtag('event','free_start',{ event_category:'LP', event_label:'無料診断開始' });">
       無料診断を始める
     </a>
   </section>
@@ -88,7 +88,7 @@
     </div>
     <a href="free.html"
        class="mt-8 inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-       onclick="gtag('event','free_start',{ 'event_category':'LP','event_label':'無料診断開始'});">
+       onclick="gtag('event','free_start',{ event_category:'LP', event_label:'無料診断開始' });">
       今すぐ無料で診断する
     </a>
   </section>
@@ -96,9 +96,9 @@
   <!-- お問い合わせ（LINE誘導のみ） -->
   <section id="contact-info" class="py-12 bg-gray-50 text-center px-4">
     <h2 class="text-2xl font-bold mb-4">ご不明な点はLINEでお気軽に！</h2>
-    <a href="https://line.me/R/ti/p/あなたのLINEID"
+    <a href="https://lin.ee/DoM46mHz"
        class="inline-block px-8 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-       onclick="gtag('event','line_add',{ 'event_category':'LP','event_label':'LINE相談'});">
+       onclick="gtag('event','line_add',{ event_category:'LP', event_label:'LINE相談' });">
       LINEで相談する
     </a>
   </section>
@@ -114,6 +114,21 @@
       <p class="text-xs">© 2025 タロット診断サービス All Rights Reserved.</p>
     </div>
   </footer>
+
+  <script>
+  // スクロール80%到達でイベント送信
+  (function() {
+    let sent = false;
+    window.addEventListener('scroll', () => {
+      if (sent) return;
+      const pct = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+      if (pct >= 0.8) {
+        sent = true;
+        gtag('event','scroll_80',{ event_category:'LP', event_label:'スクロール80%' });
+      }
+    });
+  })();
+  </script>
 
 </body>
 </html>
