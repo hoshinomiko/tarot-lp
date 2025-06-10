@@ -19,18 +19,16 @@
   <!-- Alpine.js -->
   <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
-  <style>[x-cloak] { display: none !important; }</style>
   <style>
-    @keyframes shuffleAnimation { /* 略 */ }
-    @keyframes dealAnimation   { /* 略 */ }
-    @keyframes spinMagic       { /* 略 */ }
+    [x-cloak] { display: none !important; }
+    html { scroll-behavior: smooth; }
     body { opacity: 0; transition: opacity 0.7s ease; }
   </style>
 </head>
-<body onload="document.body.style.opacity='1'" class="antialiased bg-gray-900 text-white">
+<body onload="document.body.style.opacity='1'" x-cloak class="antialiased bg-gray-900 text-white">
 
   <!-- 1. シャッフルボタン -->
-  <section x-show.transition="status==='initial'" class="min-h-screen flex items-center justify-center px-4">
+  <section x-show="status==='initial'" x-transition.opacity class="min-h-screen flex items-center justify-center px-4">
     <button @click="shuffle()"
             class="px-8 py-4 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition">
       タロットをシャッフルする
@@ -38,13 +36,13 @@
   </section>
 
   <!-- 2. シャッフル中 -->
-  <section x-show.transition="status==='shuffling'" class="min-h-screen flex flex-col items-center justify-center px-4">
+  <section x-show="status==='shuffling'" x-transition.opacity class="min-h-screen flex flex-col items-center justify-center px-4">
     <div class="w-24 h-24 bg-white rounded-full mb-4 animate-spin"></div>
     <p class="text-lg">シャッフル中…</p>
   </section>
 
   <!-- 3. カード並べ -->
-  <section x-show.transition="status==='dealing'" class="min-h-screen px-4 pt-12 pb-8">
+  <section x-show="status==='dealing'" x-transition.opacity class="min-h-screen px-4 pt-12 pb-8">
     <h2 class="text-center text-2xl font-bold mb-6">カードを並べています…</h2>
     <div class="max-w-4xl mx-auto grid grid-cols-3 gap-4">
       <template x-for="(card,i) in cards" :key="card.id">
@@ -56,7 +54,7 @@
   </section>
 
   <!-- 4. カード選択 -->
-  <section x-show.transition="status==='selecting'" class="min-h-screen px-4 pt-12">
+  <section x-show="status==='selecting'" x-transition.opacity class="min-h-screen px-4 pt-12">
     <h2 class="text-center text-2xl font-bold mb-4">カードを選んでください</h2>
     <div class="max-w-4xl mx-auto grid grid-cols-3 gap-4">
       <template x-for="card in cards" :key="card.id">
@@ -70,20 +68,20 @@
   </section>
 
   <!-- 5. 鑑定中 -->
-  <section x-show.transition="status==='analyzing'" class="min-h-screen flex flex-col items-center justify-center px-4">
+  <section x-show="status==='analyzing'" x-transition.opacity class="min-h-screen flex flex-col items-center justify-center px-4">
     <div class="w-32 h-32 border-4 border-white rounded-full mb-4 animate-spin"></div>
     <p class="text-2xl font-bold">鑑定中…</p>
   </section>
 
   <!-- 6. 結果表示 -->
-  <section x-show.transition="status==='result'" class="py-12 bg-white text-gray-800 px-4">
+  <section x-show="status==='result'" x-transition.opacity class="py-12 bg-white text-gray-800 px-4">
     <div class="max-w-lg mx-auto text-center mb-6">
       <h2 class="text-2xl font-bold mb-2">診断結果</h2>
       <p class="text-sm text-gray-600">あなたと彼（彼女）の“今”の本音を簡易リーディング</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       <template x-for="id in selected" :key="id">
-        <div class="p-4 bg-gray-50 rounded-lg shadow" x-show.transition>
+        <div class="p-4 bg-gray-50 rounded-lg shadow" x-transition.opacity>
           <h3 class="text-lg font-semibold mb-1" x-text="cards.find(c => c.id === id).name"></h3>
           <p class="text-sm">
             <strong>あなたの今：</strong><span x-text="cards.find(c => c.id === id).your"></span><br>
@@ -92,13 +90,16 @@
         </div>
       </template>
     </div>
+
     <div class="flex flex-col items-center">
-      <a href="https://line.me/R/ti/p/あなたのLINEID"
+      <a href="https://lin.ee/DoM46mHz"
          class="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
-         onclick="gtag('event','line_add',{ event_category:'LP', event_label:'LINE深掘り希望'});">
+         onclick="gtag('event','line_add',{ event_category:'LP', event_label:'LINE深掘り希望' });">
         LINEで深掘り解説を受け取る
       </a>
-      <p class="mt-2 text-xs text-gray-500 text-center">友だち追加後、「深堀り希望」とコメントしてください</p>
+      <p class="mt-2 text-xs text-gray-500 text-center">
+        友だち追加後、「深堀り希望」とコメントしてください
+      </p>
     </div>
   </section>
 
@@ -107,7 +108,9 @@
     <div class="max-w-4xl mx-auto text-center space-y-4">
       <div class="text-white font-bold text-lg">タロット診断サービス</div>
       <a href="index.html#hero" class="text-sm hover:text-white">トップへ戻る</a>
-      <p class="text-xs leading-relaxed">※本サービスは占いの結果を保証するものではありません。参考情報としてお楽しみください。</p>
+      <p class="text-xs leading-relaxed">
+        ※本サービスは占いの結果を保証するものではありません。参考情報としてお楽しみください。
+      </p>
       <p class="text-xs">© 2025 タロット診断サービス All Rights Reserved.</p>
     </div>
   </footer>
@@ -124,7 +127,7 @@
         selected: [],
         shuffle() {
           this.status = 'shuffling';
-          setTimeout(() => this.status = 'dealing', 1000);
+          setTimeout(() => this.status = 'dealing',   1000);
           setTimeout(() => this.status = 'selecting', 2000);
         },
         select(id) {
